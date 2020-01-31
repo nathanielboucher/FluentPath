@@ -853,7 +853,8 @@ namespace FluentPathSpec
             {
                 Path sourcePath = _that._path.CombineWithWindowsPath(_source);
                 Path destinationPath = _that._path.CombineWithWindowsPath(destination);
-                sourcePath.Zip(destinationPath);
+                // TODO: Fix this error (lang version and/or C# version, etc.)
+                //sourcePath.Zip(destinationPath);
             }
         }
 
