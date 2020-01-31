@@ -57,10 +57,12 @@ namespace Fluent.Zip
         /// <param name="unzipAction">The action to perform with each unzipped file.</param>
         public static void Unzip(Stream zip, Action<string, Stream> unzipAction)
         {
-            using var zipArchive = new ZipArchive(zip, ZipArchiveMode.Read);
-            foreach (ZipArchiveEntry zipEntry in zipArchive.Entries)
+            using (var zipArchive = new ZipArchive(zip, ZipArchiveMode.Read))
             {
-                unzipAction(zipEntry.FullName, zipEntry.Open());
+                foreach (ZipArchiveEntry zipEntry in zipArchive.Entries)
+                {
+                    unzipAction(zipEntry.FullName, zipEntry.Open());
+                }
             }
         }
 
@@ -93,12 +95,14 @@ namespace Fluent.Zip
         /// <param name="unzipAction">The action to perform with each unzipped file.</param>
         public static void Unzip(Stream zip, Action<string, byte[]> unzipAction)
         {
-            using var zipArchive = new ZipArchive(zip, ZipArchiveMode.Read);
-            foreach (ZipArchiveEntry zipEntry in zipArchive.Entries)
+            using (var zipArchive = new ZipArchive(zip, ZipArchiveMode.Read))
             {
-                var output = new MemoryStream();
-                zipEntry.Open().CopyTo(output);
-                unzipAction(zipEntry.FullName, output.ToArray());
+                foreach (ZipArchiveEntry zipEntry in zipArchive.Entries)
+                {
+                    var output = new MemoryStream();
+                    zipEntry.Open().CopyTo(output);
+                    unzipAction(zipEntry.FullName, output.ToArray());
+                }
             }
         }
 
@@ -189,33 +193,39 @@ namespace Fluent.Zip
 
         public static byte[] Zip(Path zipPaths, Func<Path, byte[]> zipPathToContent)
         {
-            using var result = new MemoryStream();
-            ZipToStream(zipPaths, zipPathToContent, result);
-            return result.ToArray();
+            using (var result = new MemoryStream())
+            {
+                ZipToStream(zipPaths, zipPathToContent, result);
+                return result.ToArray();
+            }
         }
 
         public static void ZipToStream(Path zipPaths, Func<Path, byte[]> zipPathToContent, Stream output)
         {
-            using var zipArchive = new ZipArchive(output, ZipArchiveMode.Create);
-            foreach (Path path in zipPaths)
+            using (var zipArchive = new ZipArchive(output, ZipArchiveMode.Create))
             {
-                ZipArchiveEntry entry = zipArchive.CreateEntry(path.First().ToString(), CompressionLevel.Optimal);
-                Stream writer = entry.Open();
-                writer.Write(zipPathToContent(path));
-                writer.Close();
+                foreach (Path path in zipPaths)
+                {
+                    ZipArchiveEntry entry = zipArchive.CreateEntry(path.First().ToString(), CompressionLevel.Optimal);
+                    Stream writer = entry.Open();
+                    //writer.Write(zipPathToContent(path));
+                    writer.Close();
+                }
             }
         }
 
         public static void ZipToStream(Path zipPaths, Func<Path, Stream> zipPathToContent, Stream output)
         {
-            using var zipArchive = new ZipArchive(output, ZipArchiveMode.Create);
-            foreach (Path path in zipPaths)
+            using (var zipArchive = new ZipArchive(output, ZipArchiveMode.Create))
             {
-                ZipArchiveEntry entry = zipArchive.CreateEntry(path.First().ToString(), CompressionLevel.Optimal);
-                Stream writer = entry.Open();
-                Stream reader = zipPathToContent(path);
-                reader.CopyTo(writer);
-                writer.Close();
+                foreach (Path path in zipPaths)
+                {
+                    ZipArchiveEntry entry = zipArchive.CreateEntry(path.First().ToString(), CompressionLevel.Optimal);
+                    Stream writer = entry.Open();
+                    Stream reader = zipPathToContent(path);
+                    reader.CopyTo(writer);
+                    writer.Close();
+                }
             }
         }
     }

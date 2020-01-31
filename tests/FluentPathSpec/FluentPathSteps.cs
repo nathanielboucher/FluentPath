@@ -423,7 +423,7 @@ namespace FluentPathSpec
                 .CombineWithWindowsPath(relativePath)
                 .Open(s =>
                 {
-                    using var reader = new SystemIO.StreamReader(s);
+                    using (var reader = new SystemIO.StreamReader(s))
                     _resultString = reader.ReadToEnd();
                 });
 
@@ -565,7 +565,7 @@ namespace FluentPathSpec
             files.Open(
                 s =>
                 {
-                    using var reader = new SystemIO.StreamReader(s);
+                    using (var reader = new System.IO.StreamReader(s))
                     _resultString += reader.ReadToEnd();
                 });
         }
@@ -576,7 +576,7 @@ namespace FluentPathSpec
             files.Open(
                 (s, p) =>
                 {
-                    using var reader = new SystemIO.StreamReader(s);
+                    using (var reader = new System.IO.StreamReader(s))
                     _resultString += p.MakeRelativeTo(_path).ToWindowsPath() + ":" + reader.ReadToEnd();
                 });
         }
